@@ -1,6 +1,10 @@
 # Crafting a Lagos Tourism Agent with Gemma & Genkit
 **DevFest Lagos, Portugal 2026 — Hands-On Workshop with Nuno Andrade**
 
+- 📦 **Workshop Repository:** [https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/](https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/)
+- 🖥️ **Interactive Presentation Slides:** [https://nuno-joao-andrade-dev.github.io/devfest_lagos_2026/slides/](https://nuno-joao-andrade-dev.github.io/devfest_lagos_2026/slides/) *(or run `npm run slides` locally / open [`slides/index.html`](./slides/index.html))*
+- 🙏 **Special Thanks:** Huge thanks to **[GDG Lagos](https://gdg.community.dev/)** for the invitation to **DevFest Lagos 2026**!
+
 Move from static prompts to autonomous local execution! In this workshop, you will build a local **Agentic RAG (Retrieval-Augmented Generation)** pipeline entirely on your machine using **Google's Genkit (TypeScript)** and **Gemma 4 (`gemma4:e2b`)** running locally via **Ollama**.
 
 The workshop is organized into **5 self-contained, ready-to-run step folders**. Each step is already complete—explore the code in the step folder and execute it with `npm run step <1..5>`!
@@ -39,10 +43,12 @@ ollama pull gemma4:e2b
 ollama pull nomic-embed-text
 ```
 
-### 2. Install Dependencies & Verify Setup
+### 2. Clone the Repository, Install Dependencies & Verify Setup
 Requires **Node.js v20+**:
 
 ```bash
+git clone https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026.git
+cd devfest_lagos_2026
 npm install
 npm run verify
 ```
@@ -116,6 +122,16 @@ devfest_gdglagos/
 │   │   ├── index-knowledge.ts      # Standalone vector DB indexer (`npm run index:kb`)
 │   │   └── verify-workshop.ts      # Self-test suite (`npm run verify`)
 │   └── index.ts                    # Entrypoint exporting all 5 steps for `npm run ui`
+├── ARTICLE.md                      # Full technical workshop article & architectural deep-dive
 ├── WORKSHOP.md                     # Detailed step-by-step walkthrough guide
 └── INSTRUCTOR_NOTES.md             # Speaker run-of-show & live demo script for Nuno Andrade
 ```
+
+---
+
+## 🙏 Special Thanks
+
+A huge **Muito Obrigado** to **GDG Lagos** for the warm invitation to speak and lead this hands-on workshop at **DevFest Lagos 2026** in the Algarve, and to all the organizers, volunteers, and attendees who joined the session!
+
+- **Workshop Repository:** [https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/](https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/)
+- **Interactive Presentation Slides:** [https://nuno-joao-andrade-dev.github.io/devfest_lagos_2026/slides/](https://nuno-joao-andrade-dev.github.io/devfest_lagos_2026/slides/) ([`slides/index.html`](./slides/index.html))

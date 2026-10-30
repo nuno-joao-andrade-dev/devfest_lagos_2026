@@ -11,6 +11,17 @@ image:
   alt: "Crafting a Lagos Tourism Agent with Gemma 4 & Genkit — DevFest Lagos 2026"
 ---
 
+> **Workshop GitHub Repository**: [https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/](https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/)
+> **Interactive Presentation Slides**: [https://nuno-joao-andrade-dev.github.io/devfest_lagos_2026/slides/](https://nuno-joao-andrade-dev.github.io/devfest_lagos_2026/slides/) ([Source in Repo](https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/tree/main/slides))
+>
+> ```bash
+> git clone https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026.git
+> cd devfest_lagos_2026
+> npm install
+> ```
+
+> **Special Thanks**: A special thank you to **GDG Lagos** and the **DevFest Lagos 2026** organizing team for the warm invitation, organization, and support in making this hands-on session in the Algarve possible!
+
 At **DevFest Lagos 2026** in the coastal heart of the Algarve, Portugal, we explored one of the most practical shifts in modern AI engineering: **moving from cloud-dependent static prompts to 100% local, autonomous Agentic RAG systems in TypeScript**.
 
 Using **Google's Gemma 4 (`gemma4:e2b`)** running locally on **Ollama** and orchestrated by the **Google Genkit TypeScript SDK**, we built **Capitão Gil**—an autonomous coastal concierge for **Lagos and the Ponta da Piedade sea caves** (`37.0805° N, 8.6694° W`). Over five progressive architectural milestones, our agent evolved from a hallucinating static prompt into a production-ready local system capable of querying a local vector store for 1913 maritime history, checking live Atlantic swell and *Nortada* wind gusts via Open-Meteo marine APIs, enforcing deterministic sea-cave safety rules, and maintaining multi-turn conversational memory—all with **zero cloud API keys and zero per-token billing**.
@@ -117,8 +128,8 @@ The repository is structured into **five self-contained, runnable milestones**. 
 
 ```bash
 # 1. Clone the workshop repository and install dependencies
-git clone https://github.com/nuno-joao-andrade/devfest_gdglagos.git
-cd devfest_gdglagos
+git clone https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026.git
+cd devfest_lagos_2026
 npm install
 
 # 2. Pull the local Gemma 4 model via Ollama
@@ -691,9 +702,10 @@ During hands-on workshops with local models, a few predictable environment issue
 
 ## Special Thanks & Resources
 
-A huge **Muito Obrigado** to **GDG Lagos**, the **DevFest Lagos 2026** organizers, volunteers, and all the developers who joined this hands-on session in the Algarve!
+A huge **Muito Obrigado** to **GDG Lagos** for the warm invitation to speak and run this workshop at **DevFest Lagos 2026**, and to the organizers, volunteers, and all the developers who joined this hands-on session in the Algarve!
 
-- **Workshop Repository & Code:** [`devfest_gdglagos`](https://github.com/nuno-joao-andrade/devfest_gdglagos)
+- **Workshop Repository & Code:** [https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/](https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/)
+- **Interactive Presentation Slides:** [https://nuno-joao-andrade-dev.github.io/devfest_lagos_2026/slides/](https://nuno-joao-andrade-dev.github.io/devfest_lagos_2026/slides/) ([`slides/index.html`](https://github.com/nuno-joao-andrade-dev/devfest_lagos_2026/blob/main/slides/index.html))
 - **Google Genkit Documentation:** [genkit.dev](https://genkit.dev/)
 - **Google Gemma Models on Ollama:** [ollama.com/library/gemma4](https://ollama.com/library/gemma4)
 - **Open-Meteo Marine Weather API:** [open-meteo.com/en/docs/marine-weather-api](https://open-meteo.com/en/docs/marine-weather-api)
