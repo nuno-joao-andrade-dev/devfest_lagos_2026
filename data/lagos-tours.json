@@ -1,0 +1,101 @@
+[
+  {
+    "id": "kayak-batata-grottos",
+    "title": "Ponta da Piedade Guided Sea Cave Kayak Tour (Beach Launch)",
+    "category": "kayak",
+    "requiresCalmSea": true,
+    "maxWindKmh": 20,
+    "maxGustKmh": 28,
+    "maxWaveMeters": 1.2,
+    "departurePoint": "Praia da Batata (next to Forte da Ponta da Bandeira)",
+    "durationHours": 2.5,
+    "priceEur": 35,
+    "schedule": ["09:30", "11:00", "14:00"],
+    "highlights": [
+      "Paddle under the Roman-style arch bridge at Praia dos Estudantes",
+      "Enter narrow sea caves: A Catedral, A Cozinha, and Gruta dos Amores",
+      "Pass through Arco do Triunfo with a certified local Lagos kayak guide",
+      "Snorkeling stop in a sheltered cove near Praia Dona Ana"
+    ],
+    "safetyNotes": "Strictly requires wind <= 20 km/h, gusts <= 28 km/h, and Atlantic wave height <= 1.2m. Afternoon 14:00 departures may be cancelled if the Nortada offshore wind picks up."
+  },
+  {
+    "id": "kayak-marina-catamaran",
+    "title": "Marina de Lagos Catamaran + Ponta da Piedade Kayak Expedition",
+    "category": "kayak",
+    "requiresCalmSea": true,
+    "maxWindKmh": 22,
+    "maxGustKmh": 30,
+    "maxWaveMeters": 1.2,
+    "departurePoint": "Marina de Lagos (Passeio dos Descobrimentos)",
+    "durationHours": 2.5,
+    "priceEur": 40,
+    "schedule": ["10:00", "13:30"],
+    "highlights": [
+      "Relaxing 20-minute catamaran cruise from Marina de Lagos to the golden cliffs",
+      "Launch kayaks directly at Ponta da Piedade with full safety boat support",
+      "Explore A Cozinha, A Sala de Visitas, O Submarino, and A Catedral",
+      "Ideal for beginners and families wanting less open-water paddling"
+    ],
+    "safetyNotes": "Requires wave height <= 1.2m and wind <= 22 km/h to safely launch kayaks from the mother vessel and enter sea caves."
+  },
+  {
+    "id": "boat-traditional-grottos",
+    "title": "Traditional Fisherman's Grotto Boat Cruise (Costa d'Oiro)",
+    "category": "boat",
+    "requiresCalmSea": true,
+    "maxWindKmh": 28,
+    "maxGustKmh": 38,
+    "maxWaveMeters": 1.5,
+    "departurePoint": "Marina de Lagos or Ponta da Piedade 182-Step Cove",
+    "durationHours": 1.25,
+    "priceEur": 25,
+    "schedule": ["10:00", "11:30", "13:00", "15:00", "16:30"],
+    "highlights": [
+      "Navigate inside the Miocene limestone arches aboard a nimble local wooden/fiberglass grotto boat",
+      "Learn fishermen's stories behind the 1913 Lighthouse, O Camelo, and A Catedral",
+      "No paddling required; great photography angles of the 20m cliffs"
+    ],
+    "safetyNotes": "Can operate in slightly breezier conditions than kayaks (up to 28 km/h wind), but cave entry is suspended by Capitania do Porto de Lagos if swell exceeds 1.5m."
+  },
+  {
+    "id": "land-cliff-boardwalks",
+    "title": "Passadiços da Ponta da Piedade Cliffside & Lighthouse Guided Walk",
+    "category": "land_outdoor",
+    "requiresCalmSea": false,
+    "maxWindKmh": 60,
+    "maxGustKmh": 80,
+    "maxWaveMeters": 10.0,
+    "departurePoint": "Praia Dona Ana Viewpoint -> Farol da Ponta da Piedade",
+    "durationHours": 2.0,
+    "priceEur": 18,
+    "schedule": ["09:30", "16:00 (Sunset Golden Hour)"],
+    "highlights": [
+      "Walk the elevated wooden boardwalks (Passadiços) safely above the 51m cliffs",
+      "Visit the 1913 Ponta da Piedade Lighthouse (site of the 16th-century Ermida)",
+      "Spectacular elevated views of dramatic Atlantic waves crashing on O Submarino and Arco do Triunfo",
+      "Discover Miocene marine fossils embedded directly in the limestone rocks"
+    ],
+    "safetyNotes": "100% safe during high swells or strong Nortada winds when kayaking is closed. Avoid only during lightning or severe rainstorms."
+  },
+  {
+    "id": "culture-discoveries-gastronomy",
+    "title": "Age of Discoveries Heritage & Dom Rodrigo Gastronomy Walk (Old Town)",
+    "category": "culture_indoor",
+    "requiresCalmSea": false,
+    "maxWindKmh": 100,
+    "maxGustKmh": 120,
+    "maxWaveMeters": 15.0,
+    "departurePoint": "Praça Gil Eanes (Historic Center of Lagos)",
+    "durationHours": 3.0,
+    "priceEur": 32,
+    "schedule": ["10:30", "15:00"],
+    "highlights": [
+      "Guided entry to Igreja de Santo António (gilded Baroque talha dourada) & Museu de Lagos",
+      "Visit Forte da Ponta da Bandeira drawbridge and the 1444 Mercado de Escravos Museum",
+      "Hear the story of Gil Eanes rounding Cape Bojador (1434) and Prince Henry's caravels",
+      "Tasting of authentic foil-wrapped Dom Rodrigo, Morgado de Amêndoa, and local wine"
+    ],
+    "safetyNotes": "All-weather cultural & indoor museum experience; the #1 recommendation when strong winds, heavy Atlantic swell, or rain prevent coastal activities."
+  }
+]

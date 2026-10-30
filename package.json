@@ -1,0 +1,49 @@
+{
+  "name": "devfest-lagos-2026-gemma-genkit-agent",
+  "version": "1.0.0",
+  "description": "Workshop: Crafting a Lagos Tourism Agent with Gemma & Genkit - DevFest Lagos, Portugal 2026 (with Nuno Andrade)",
+  "type": "module",
+  "author": "Nuno Andrade",
+  "license": "MIT",
+  "scripts": {
+    "step": "tsx src/scripts/run-step.ts",
+    "step1": "tsx step-01-basic-prompt/index.ts",
+    "step2": "tsx step-02-vector-rag/index.ts",
+    "step2:ui": "genkit start -- tsx --watch step-02-vector-rag/genkit-ui.ts",
+    "rag:ui": "genkit start -- tsx --watch step-02-vector-rag/genkit-ui.ts",
+    "step3": "tsx step-03-custom-tools/index.ts",
+    "step4": "tsx step-04-agentic-rag/index.ts",
+    "step4:ui": "genkit start -- tsx --watch step-04-agentic-rag/genkit-ui.ts",
+    "step5": "tsx step-05-production-agent/index.ts",
+    "step01": "tsx step-01-basic-prompt/index.ts",
+    "step02": "tsx step-02-vector-rag/index.ts",
+    "step03": "tsx step-03-custom-tools/index.ts",
+    "step04": "tsx step-04-agentic-rag/index.ts",
+    "step05": "tsx step-05-production-agent/index.ts",
+    "step:1": "tsx step-01-basic-prompt/index.ts",
+    "step:2": "tsx step-02-vector-rag/index.ts",
+    "step:3": "tsx step-03-custom-tools/index.ts",
+    "step:4": "tsx step-04-agentic-rag/index.ts",
+    "step:5": "tsx step-05-production-agent/index.ts",
+    "ui": "genkit start -- tsx --watch src/index.ts",
+    "dev": "genkit start -- tsx --watch src/index.ts",
+    "slides": "tsx src/scripts/open-slides.ts",
+    "index:kb": "tsx src/scripts/index-knowledge.ts",
+    "verify": "tsx src/scripts/verify-workshop.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@genkit-ai/dev-local-vectorstore": "^1.43.0",
+    "dotenv": "^16.4.7",
+    "genkit": "^1.43.0",
+    "genkitx-ollama": "^1.43.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "genkit-cli": "^1.43.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

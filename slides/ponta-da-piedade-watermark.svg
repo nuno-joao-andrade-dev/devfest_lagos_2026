@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" fill="none">
+  <defs>
+    <linearGradient id="cliffGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FBBC04" stop-opacity="0.16" />
+      <stop offset="55%" stop-color="#EA4335" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#B06000" stop-opacity="0.14" />
+    </linearGradient>
+    <linearGradient id="seaTeal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4285F4" stop-opacity="0.14" />
+      <stop offset="50%" stop-color="#34A853" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#4285F4" stop-opacity="0.15" />
+    </linearGradient>
+    <radialGradient id="lighthouseBeam" cx="0.72" cy="0.22" r="0.45">
+      <stop offset="0%" stop-color="#FBBC04" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#FBBC04" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Subtle Sun / Lighthouse Glow -->
+  <circle cx="865" cy="135" r="220" fill="url(#lighthouseBeam)" />
+  <path d="M865 135 L480 40 L520 210 Z" fill="url(#lighthouseBeam)" />
+  <path d="M865 135 L1190 55 L1190 215 Z" fill="url(#lighthouseBeam)" />
+
+  <!-- Seagulls over Lagos Bay -->
+  <path d="M620 120 Q632 108 644 120 Q656 108 668 120" stroke="#4285F4" stroke-opacity="0.22" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M685 95 Q694 86 703 95 Q712 86 721 95" stroke="#4285F4" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round"/>
+  <path d="M565 148 Q573 140 581 148 Q589 140 597 148" stroke="#4285F4" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- 1913 Farol da Ponta da Piedade Lighthouse on the Main Cliff -->
+  <g stroke="#B06000" stroke-opacity="0.24" stroke-width="2.2">
+    <!-- Lighthouse Base Keepers Building -->
+    <rect x="838" y="172" width="54" height="28" rx="2" fill="#FBBC04" fill-opacity="0.10" />
+    <!-- Square Masonry Tower -->
+    <path d="M852 172 L856 126 L874 126 L878 172 Z" fill="#FBBC04" fill-opacity="0.14" />
+    <!-- Red Lantern Dome -->
+    <rect x="854" y="118" width="22" height="8" rx="1" fill="#EA4335" fill-opacity="0.18" />
+    <path d="M854 118 Q865 103 876 118 Z" fill="#EA4335" fill-opacity="0.24" />
+    <line x1="865" y1="102" x2="865" y2="110" />
+  </g>
+
+  <!-- Main Ponta da Piedade Headland & Sea Caves (A Catedral & Arco do Triunfo) -->
+  <path d="
+    M 1200 490
+    L 1200 220
+    C 1150 215, 1110 205, 1065 198
+    C 1015 190, 960 195, 915 198
+    L 820 198
+    C 790 200, 770 218, 752 248
+    L 725 305
+    C 708 338, 690 365, 675 490
+    L 715 490
+    C 720 410, 745 365, 785 365
+    C 825 365, 845 410, 850 490
+    L 925 490
+    C 930 390, 965 340, 1015 340
+    C 1065 340, 1095 390, 1100 490
+    Z
+  " fill="url(#cliffGold)" stroke="#B06000" stroke-opacity="0.22" stroke-width="2.5" />
+
+  <!-- Horizontal Miocene Limestone Strata Striations on Main Cliff -->
+  <path d="M775 235 C855 228, 985 232, 1180 242" stroke="#B06000" stroke-opacity="0.16" stroke-width="1.8" stroke-dasharray="14 6"/>
+  <path d="M748 278 C845 270, 995 275, 1190 285" stroke="#B06000" stroke-opacity="0.16" stroke-width="1.8" />
+  <path d="M728 320 C835 314, 965 318, 1185 326" stroke="#B06000" stroke-opacity="0.14" stroke-width="1.6" stroke-dasharray="20 8"/>
+
+  <!-- Sea Stack 1: "A Catedral" / Detached Sea Arch Pillar -->
+  <path d="
+    M 475 490
+    L 490 310
+    C 496 278, 520 262, 558 260
+    C 596 258, 625 275, 635 308
+    L 652 490
+    L 605 490
+    C 600 418, 582 385, 560 385
+    C 538 385, 522 418, 518 490
+    Z
+  " fill="url(#cliffGold)" stroke="#B06000" stroke-opacity="0.22" stroke-width="2.2" />
+  <path d="M500 302 C535 296, 585 298, 628 304" stroke="#B06000" stroke-opacity="0.15" stroke-width="1.6" />
+  <path d="M492 342 C535 336, 590 338, 636 344" stroke="#B06000" stroke-opacity="0.15" stroke-width="1.6" stroke-dasharray="10 5" />
+
+  <!-- Sea Stack 2: "O Submarino / O Camelo" Outer Rock Spire -->
+  <path d="
+    M 335 490
+    L 348 372
+    C 355 348, 375 338, 398 342
+    C 418 345, 432 365, 438 395
+    L 448 490
+    Z
+  " fill="url(#cliffGold)" stroke="#B06000" stroke-opacity="0.20" stroke-width="2" />
+
+  <!-- Distant Sea Stack 3 -->
+  <path d="
+    M 235 490
+    L 245 418
+    C 252 400, 272 396, 285 412
+    L 298 490
+    Z
+  " fill="url(#cliffGold)" stroke="#B06000" stroke-opacity="0.16" stroke-width="1.8" />
+
+  <!-- Kayak Silhouette Gliding Toward the Grotto Arch -->
+  <g opacity="0.26" stroke="#1967D2" stroke-width="2" fill="none">
+    <path d="M 640 502 Q 675 494 710 502 Q 675 510 640 502 Z" fill="#4285F4" fill-opacity="0.25" />
+    <!-- Paddler & Paddle -->
+    <circle cx="675" cy="488" r="4.5" fill="#1967D2" />
+    <path d="M 668 499 L 682 499" stroke-width="3" />
+    <line x1="656" y1="482" x2="694" y2="508" stroke="#EA4335" stroke-width="2.2" />
+  </g>
+
+  <!-- Rolling Atlantic Ocean Waves at Base of Grottos -->
+  <path d="
+    M 80 492
+    Q 145 478, 210 492
+    T 340 492
+    T 470 492
+    T 600 492
+    T 730 492
+    T 860 492
+    T 990 492
+    T 1120 492
+    T 1200 492
+    L 1200 560
+    L 80 560
+    Z
+  " fill="url(#seaTeal)" />
+
+  <path d="M 140 515 Q 205 502, 270 515 T 400 515 T 530 515 T 660 515 T 790 515 T 920 515 T 1050 515 T 1180 515"
+        stroke="#4285F4" stroke-opacity="0.24" stroke-width="2.4" stroke-linecap="round" fill="none" />
+  <path d="M 220 538 Q 285 526, 350 538 T 480 538 T 610 538 T 740 538 T 870 538 T 1000 538 T 1130 538"
+        stroke="#34A853" stroke-opacity="0.20" stroke-width="2" stroke-linecap="round" fill="none" />
+</svg>

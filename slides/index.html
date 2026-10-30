@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crafting a Lagos Tourism Agent with Gemma & Genkit — DevFest Lagos 2026</title>
+  <style>
+    :root {
+      --g-blue: #4285F4;
+      --g-blue-dark: #1967D2;
+      --g-blue-bg: #E8F0FE;
+      --g-red: #EA4335;
+      --g-red-bg: #FCE8E6;
+      --g-yellow: #FBBC04;
+      --g-yellow-dark: #B06000;
+      --g-yellow-bg: #FEF7E0;
+      --g-green: #34A853;
+      --g-green-dark: #137333;
+      --g-green-bg: #CEEAD6;
+
+      --bg-page: #F8F9FA;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F1F3F4;
+      --text-primary: #202124;
+      --text-secondary: #5F6368;
+      --border-light: #DADCE0;
+
+      --code-bg: #0F172A;
+      --code-header: #1E293B;
+      --code-text: #F8FAFC;
+      --code-kw: #7DD3FC;
+      --code-fn: #FDE047;
+      --code-str: #86EFAC;
+      --code-cmt: #94A3B8;
+      --code-type: #F9A8D4;
+
+      --shadow-sm: 0 1px 3px rgba(60,64,67,0.12), 0 1px 2px rgba(60,64,67,0.08);
+      --shadow-md: 0 4px 12px rgba(60,64,67,0.12), 0 2px 4px rgba(60,64,67,0.06);
+      --shadow-lg: 0 10px 30px rgba(60,64,67,0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Google Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Google 4-color accent bar */
+    .google-color-bar {
+      height: 6px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      flex-shrink: 0;
+    }
+    .google-color-bar div:nth-child(1) { background: var(--g-blue); }
+    .google-color-bar div:nth-child(2) { background: var(--g-red); }
+    .google-color-bar div:nth-child(3) { background: var(--g-yellow); }
+    .google-color-bar div:nth-child(4) { background: var(--g-green); }
+
+    /* Top Header Bar */
+    .deck-header {
+      height: 54px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .gdg-dots {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .gdg-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .model-pill {
+      background: var(--g-blue-bg);
+      color: var(--g-blue-dark);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 0.78rem;
+      border: 1px solid rgba(66, 133, 244, 0.25);
+    }
+
+    /* Slide Viewport */
+    .slide-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 48px;
+    }
+
+    .slide {
+      display: none;
+      position: relative;
+      width: 100%;
+      max-width: 1280px;
+      height: 100%;
+      max-height: 760px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FDFBF7 72%, #F4F9FD 100%);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      padding: 42px 52px;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      animation: slideFadeIn 0.22s ease-out;
+      user-select: text;
+    }
+
+    .slide > *:not(.lagos-caves-watermark) {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Ponta da Piedade Seaside Caves & Lighthouse Background Watermark */
+    .lagos-caves-watermark {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+
+    .lagos-caves-watermark svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: right bottom;
+      opacity: 0.92;
+    }
+
+    .lagos-watermark-caption {
+      position: absolute;
+      bottom: 84px;
+      right: 26px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(176, 96, 0, 0.42);
+      font-family: "JetBrains Mono", monospace;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes slideFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Typography */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      width: fit-content;
+    }
+    .eyebrow.blue { background: var(--g-blue-bg); color: var(--g-blue-dark); }
+    .eyebrow.red { background: var(--g-red-bg); color: var(--g-red); }
+    .eyebrow.yellow { background: var(--g-yellow-bg); color: var(--g-yellow-dark); }
+    .eyebrow.green { background: var(--g-green-bg); color: var(--g-green-dark); }
+
+    h1 {
+      font-size: 2.75rem;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 2.05rem;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    p.lead {
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      max-width: 900px;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: stretch;
+      margin: 14px 0;
+    }
+
+    .grid-2-wide-right {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 24px;
+      align-items: stretch;
+      margin: 12px 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+      margin: 14px 0;
+    }
+
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(248, 249, 250, 0.86);
+      backdrop-filter: blur(3px);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card.white { background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(4px); box-shadow: var(--shadow-sm); }
+    .card.border-blue { border-top: 4px solid var(--g-blue); }
+    .card.border-red { border-top: 4px solid var(--g-red); }
+    .card.border-yellow { border-top: 4px solid var(--g-yellow); }
+    .card.border-green { border-top: 4px solid var(--g-green); }
+
+    .card p, .card li {
+      font-size: 0.96rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+
+    .card ul {
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Dark Code Window */
+    .code-window {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      font-family: "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+    }
+
+    .code-header {
+      background: var(--code-header);
+      padding: 9px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: #CBD5E1;
+      border-bottom: 1px solid #334155;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .window-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .window-dots span:nth-child(1) { background: #EF4444; }
+    .window-dots span:nth-child(2) { background: #F59E0B; }
+    .window-dots span:nth-child(3) { background: #10B981; }
+
+    .code-body {
+      padding: 16px 18px;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .code-body .kw { color: var(--code-kw); font-weight: 600; }
+    .code-body .fn { color: var(--code-fn); }
+    .code-body .str { color: var(--code-str); }
+    .code-body .cmt { color: var(--code-cmt); font-style: italic; }
+    .code-body .typ { color: var(--code-type); }
+    .code-body .hl-add {
+      background: rgba(52, 168, 83, 0.22);
+      border-left: 3px solid #4ADE80;
+      display: block;
+      margin: 0 -18px;
+      padding: 0 15px;
+    }
+    .code-body .hl-del {
+      background: rgba(234, 67, 53, 0.22);
+      border-left: 3px solid #F87171;
+      display: block;
+      margin: 0 -18px;
+      padding: 0 15px;
+      text-decoration: line-through;
+      opacity: 0.8;
+    }
+
+    /* Interactive Command Callout Bar */
+    .cmd-bar {
+      background: #1E293B;
+      color: #F8FAFC;
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      border: 1px solid #334155;
+    }
+
+    .cmd-bar-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #94A3B8;
+    }
+
+    .cmd-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .cmd-btn {
+      background: #0F172A;
+      color: #38BDF8;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+    .cmd-btn:hover {
+      background: #1E3A8A;
+      border-color: #60A5FA;
+      color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+    .cmd-btn.green {
+      color: #4ADE80;
+      border-color: rgba(74, 222, 128, 0.4);
+    }
+    .cmd-btn.yellow {
+      color: #FDE047;
+      border-color: rgba(253, 224, 71, 0.4);
+    }
+
+    /* Diagram Flow Boxes */
+    .arch-diagram {
+      background: var(--bg-page);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .arch-node {
+      background: var(--bg-card);
+      border: 2px solid var(--border-light);
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: center;
+      flex: 1;
+      box-shadow: var(--shadow-sm);
+    }
+    .arch-node.blue { border-color: var(--g-blue); background: var(--g-blue-bg); }
+    .arch-node.green { border-color: var(--g-green); background: var(--g-green-bg); }
+    .arch-node.yellow { border-color: var(--g-yellow); background: var(--g-yellow-bg); }
+    .arch-node.red { border-color: var(--g-red); background: var(--g-red-bg); }
+
+    .arch-node strong {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+    .arch-node span {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      font-family: monospace;
+    }
+    .arch-arrow {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    /* Speaker Notes Drawer */
+    .speaker-notes-drawer {
+      position: fixed;
+      bottom: 52px;
+      left: 0;
+      right: 0;
+      background: #1E293B;
+      color: #F8FAFC;
+      border-top: 3px solid var(--g-yellow);
+      padding: 18px 48px;
+      z-index: 30;
+      display: none;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .speaker-notes-drawer.open {
+      display: block;
+    }
+    .speaker-notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--g-yellow);
+      font-weight: 700;
+    }
+    .speaker-notes-content {
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: #E2E8F0;
+      max-width: 1200px;
+    }
+
+    /* Footer Controls */
+    .deck-footer {
+      height: 52px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-light);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .progress-Wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 280px;
+    }
+    .progress-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-subtle);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--g-blue);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+    .slide-counter {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      min-width: 55px;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      background: var(--bg-page);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .nav-btn:hover {
+      background: var(--bg-subtle);
+    }
+    .nav-btn.active {
+      background: var(--g-yellow-bg);
+      border-color: var(--g-yellow);
+      color: var(--g-yellow-dark);
+    }
+
+    /* Toast Notification */
+    .copy-toast {
+      position: fixed;
+      top: 74px;
+      right: 32px;
+      background: var(--g-green-dark);
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+      z-index: 100;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .badge-inline {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.82em;
+      background: var(--bg-subtle);
+      padding: 2px 7px;
+      border-radius: 5px;
+      color: var(--g-blue-dark);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Google 4-Color Top Strip -->
+  <div class="google-color-bar">
+    <div></div><div></div><div></div><div></div>
+  </div>
+
+  <!-- Header -->
+  <header class="deck-header">
+    <div class="brand-left">
+      <div class="gdg-dots">
+        <span style="background: var(--g-blue)"></span>
+        <span style="background: var(--g-red)"></span>
+        <span style="background: var(--g-yellow)"></span>
+        <span style="background: var(--g-green)"></span>
+      </div>
+      <span>DevFest Lagos, Portugal 2026</span>
+      <span style="color: var(--border-light)">|</span>
+      <span style="color: var(--text-secondary); font-weight: 500;">Crafting a Lagos Tourism Agent with Gemma &amp; Genkit</span>
+    </div>
+    <div class="header-meta">
+      <span>Speaker: <strong>Nuno Andrade</strong></span>
+      <span class="model-pill">ollama/gemma4:e2b</span>
+    </div>
+  </header>
+
+  <!-- Copy Toast -->
+  <div id="copyToast" class="copy-toast">✅ Copied command to clipboard!</div>
+
+  <!-- Main Slide Viewport -->
+  <main class="slide-viewport">
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 1: TITLE SLIDE                                               -->
+    <!-- ================================================================== -->
+    <section class="slide active" data-notes="Welcome everyone to DevFest Lagos 2026! Today we are moving from static prompts to autonomous local execution using Google's Genkit (TypeScript) and Gemma 4 (gemma4:e2b) running 100% locally on your laptop. Every step is already built in its own folder—you only need to run 'npm run step 1' through 'npm run step 5'!">
+      <div>
+        <div class="eyebrow blue">⛵ Hands-On Workshop • DevFest Lagos, Portugal 2026</div>
+        <h1>Crafting a Lagos Tourism Agent<br/>with <span style="color: var(--g-blue)">Gemma 4</span> &amp; <span style="color: var(--g-green)">Genkit</span></h1>
+        <p class="lead">
+          Move from static prompts to autonomous local execution! Build an <strong>Agentic RAG</strong> pipeline in TypeScript that knows when to query a local vector database for <em>Ponta da Piedade</em> history and when to check live Atlantic weather before recommending a kayak tour.
+        </p>
+
+        <div class="grid-3" style="margin-top: 28px;">
+          <div class="card white border-blue">
+            <h3>🤖 100% Local LLM</h3>
+            <p>Powered by <strong>Gemma 4 (<span class="badge-inline">gemma4:e2b</span>)</strong> via Ollama with native function calling &amp; zero cloud API keys.</p>
+          </div>
+          <div class="card white border-green">
+            <h3>🧭 Hyper-Local Vector RAG</h3>
+            <p>21 curated Markdown chunks on <em>Ponta da Piedade</em> grottos, maritime history &amp; safety rules in a local vector store.</p>
+          </div>
+          <div class="card white border-yellow">
+            <h3>🛠️ Autonomous Tools</h3>
+            <p>TypeScript tools calling live <strong>Open-Meteo Marine APIs</strong> + local tour safety filters orchestrated by Genkit.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">👤 Led by <strong style="color: #fff;">Nuno Andrade</strong> • Pre-Flight Check:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('ollama pull gemma4:e2b')">📋 ollama pull gemma4:e2b</button>
+          <button class="cmd-btn" onclick="copyCmd('npm run verify')">📋 npm run verify</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 2: THE PROBLEM WITH STATIC PROMPTS                           -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="Start with a relatable question a tourist in Lagos asks: 'Why was the 1913 Ponta da Piedade lighthouse delayed for 30 years, and is the sea safe to kayak right now?' A static LLM fails on both fronts: it doesn't know local parish disputes or today's Atlantic swell.">
+      <div>
+        <div class="eyebrow red">⚠️ The Challenge</div>
+        <h2>Why Static Prompts Fail in the Real World</h2>
+        <p class="lead">Imagine a visitor at <em>Praia da Batata</em> asking your local LLM two questions in one breath:</p>
+
+        <div class="grid-2" style="margin-top: 20px;">
+          <div class="card white border-red">
+            <h3>1️⃣ Hyper-Local Knowledge Blindness</h3>
+            <p><em>"Why was the 1913 Ponta da Piedade lighthouse delayed for 30 years, and what are the fishermen names of the sea caves?"</em></p>
+            <ul>
+              <li>Base LLMs guess or omit the <strong>Ermida de Nossa Senhora da Piedade</strong> chapel dispute.</li>
+              <li>They cannot know private event data like the DevFest Lagos 2026 passphrase (<span class="badge-inline">CARAVELA-GEMMA-2026</span>).</li>
+            </ul>
+          </div>
+
+          <div class="card white border-yellow">
+            <h3>2️⃣ Real-Time World Blindness (Safety Risk!)</h3>
+            <p><em>"Can we take a kayak cave tour around Ponta da Piedade right now?"</em></p>
+            <ul>
+              <li>A static LLM has <strong>zero access</strong> to live Atlantic wave height or afternoon <em>Nortada</em> wind gusts.</li>
+              <li>Guessing <em>"Sure, go kayak!"</em> during a 2.3m swell or 35 km/h offshore wind is dangerous.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="arch-diagram" style="margin-top: 18px;">
+          <div class="arch-node">
+            <strong>Visitor Prompt</strong>
+            <span>History + Live Kayak Safety</span>
+          </div>
+          <div class="arch-arrow">➔</div>
+          <div class="arch-node red">
+            <strong>Static Local LLM (gemma4:e2b)</strong>
+            <span>Frozen Training Weights Only</span>
+          </div>
+          <div class="arch-arrow">➔</div>
+          <div class="arch-node">
+            <strong>❌ Unverified / Unsafe Reply</strong>
+            <span>No Local Facts • No Live Weather</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">💡 Our Goal Today: Bridge local LLMs with Vector RAG + TypeScript Tools!</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn" onclick="nextSlide()">Setup Node.js &amp; Ollama ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 3: INSTALLING NODE.JS (v20+) & PROJECT DEPENDENCIES          -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="Before we run the 5 steps, let's make sure everyone has Node.js v20+ (LTS) installed. Genkit 1.x and TypeScript ESM require Node 20 or newer. Once Node is installed, run 'npm install' in the workshop repo.">
+      <div>
+        <div class="eyebrow green">🛠️ Setup Part 1 • Runtime Environment</div>
+        <h2>Installing <span style="color: var(--g-green)">Node.js (v20+ LTS)</span> &amp; Workshop Repo</h2>
+        <p class="lead">Google Genkit and our TypeScript runner (<span class="badge-inline">tsx</span>) require <strong>Node.js v20 or newer</strong> (v20 LTS or v22 LTS recommended).</p>
+
+        <div class="grid-3" style="margin-top: 16px;">
+          <div class="card white border-blue">
+            <h3>🍎 macOS / 🐧 Linux (nvm)</h3>
+            <p>Install via <strong>nvm</strong> (Node Version Manager) or Homebrew:</p>
+            <div class="code-window" style="margin-top: 6px;">
+              <div class="code-body" style="padding: 10px 12px; font-size: 0.76rem;"><span class="cmt"># Using nvm (Recommended):</span>
+nvm install 22
+nvm use 22
+
+<span class="cmt"># Or macOS Homebrew:</span>
+brew install node@22</div>
+            </div>
+          </div>
+
+          <div class="card white border-yellow">
+            <h3>🪟 Windows (winget / fnm)</h3>
+            <p>Install via PowerShell <strong>winget</strong> or download from <span class="badge-inline">nodejs.org</span>:</p>
+            <div class="code-window" style="margin-top: 6px;">
+              <div class="code-body" style="padding: 10px 12px; font-size: 0.76rem;"><span class="cmt"># PowerShell (winget):</span>
+winget install OpenJS.NodeJS.LTS
+
+<span class="cmt"># Or Fast Node Manager (fnm):</span>
+fnm install 22 &amp;&amp; fnm use 22</div>
+            </div>
+          </div>
+
+          <div class="card white border-green">
+            <h3>📦 Install Workshop Packages</h3>
+            <p>Verify your Node version ($\ge 20$) and install the repo dependencies:</p>
+            <div class="code-window" style="margin-top: 6px;">
+              <div class="code-body" style="padding: 10px 12px; font-size: 0.76rem;"><span class="cmt"># 1. Check versions:</span>
+node -v   <span class="cmt"># v20.x or v22.x</span>
+npm -v
+
+<span class="cmt"># 2. Install Genkit &amp; tools:</span>
+npm install</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">⚡ Copy commands to install &amp; verify Node.js:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn" onclick="copyCmd('nvm install 22 && nvm use 22')">📋 nvm install 22</button>
+          <button class="cmd-btn" onclick="copyCmd('node -v && npm -v')">📋 node -v &amp;&amp; npm -v</button>
+          <button class="cmd-btn green" onclick="copyCmd('npm install')">📋 npm install</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 4: INSTALLING OLLAMA & PULLING GEMMA 4 (gemma4:e2b)          -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="Next, let's set up Ollama and pull our local Gemma 4 model: gemma4:e2b. Why gemma4:e2b? Because it is compact enough to run fast on any workshop laptop while supporting native tool calling! Once pulled, run 'npm run verify' to test all 5 steps.">
+      <div>
+        <div class="eyebrow blue">🦙 Setup Part 2 • Local LLM Engine</div>
+        <h2>Installing <span style="color: var(--g-blue)">Ollama</span> &amp; Pulling <span class="badge-inline">gemma4:e2b</span></h2>
+        <p class="lead"><strong>Ollama</strong> runs local LLMs as an HTTP server on <span class="badge-inline">http://127.0.0.1:11434</span>. We use <strong>Gemma 4 (<span class="badge-inline">gemma4:e2b</span>)</strong> for fast local inference &amp; native tool calling.</p>
+
+        <div class="grid-2-wide-right" style="margin-top: 14px;">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card white border-blue">
+              <h3>1️⃣ Install Ollama (<span class="badge-inline">ollama.com</span>)</h3>
+              <ul>
+                <li><strong>🐧 Linux:</strong> <span class="badge-inline">curl -fsSL https://ollama.com/install.sh | sh</span></li>
+                <li><strong>🍎 macOS:</strong> <span class="badge-inline">brew install --cask ollama</span> (or download `.dmg`)</li>
+                <li><strong>🪟 Windows:</strong> <span class="badge-inline">winget install Ollama.Ollama</span></li>
+              </ul>
+            </div>
+
+            <div class="card white border-green">
+              <h3>2️⃣ Pull <span class="badge-inline">gemma4:e2b</span> &amp; Verify</h3>
+              <ul>
+                <li>Pull the model once—then the entire workshop runs <strong>100% offline</strong>!</li>
+                <li>Run <span class="badge-inline">npm run verify</span> to confirm Ollama &amp; Genkit are connected.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span>Terminal — Install Ollama &amp; Pull Gemma 4</span>
+            </div>
+            <div class="code-body"><span class="cmt"># 1. Install Ollama on Linux (or via Homebrew/winget):</span>
+curl -fsSL https://ollama.com/install.sh | sh
+
+<span class="cmt"># 2. Pull the local Gemma 4 E2B model (~1.6 GB):</span>
+<span class="hl-add">ollama pull gemma4:e2b</span>
+
+<span class="cmt"># 3. Confirm the model is installed locally:</span>
+ollama list
+
+<span class="cmt"># 4. Run the Workshop Pre-Flight Verifier:</span>
+<span class="hl-add">npm run verify</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🚀 Copy commands to pull <strong style="color:#fff;">gemma4:e2b</strong> &amp; run pre-flight check:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn" onclick="copyCmd('curl -fsSL https://ollama.com/install.sh | sh')">🐧 Install Ollama (Linux)</button>
+          <button class="cmd-btn green" onclick="copyCmd('ollama pull gemma4:e2b')">📋 ollama pull gemma4:e2b</button>
+          <button class="cmd-btn yellow" onclick="copyCmd('npm run verify')">✅ npm run verify</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 3: WORKSHOP ROADMAP (5 STEPS)                                -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="Explain the workshop format: 5 self-contained folders (step-01 through step-05), already completed. Attendees don't have to fight syntax typos—they inspect the code in each folder and execute 'npm run step 1' through 'npm run step 5'.">
+      <div>
+        <div class="eyebrow blue">🗺️ Workshop Format</div>
+        <h2>5 Self-Contained Steps — Ready to Run!</h2>
+        <p class="lead">Every step is in its own folder with completed TypeScript code. Inspect the code, run <span class="badge-inline">npm run step X</span>, or test directly in the Genkit UI!</p>
+
+        <div class="grid-5" style="margin-top: 22px;">
+          <div class="card white border-blue">
+            <span class="badge-inline" style="width:fit-content;">STEP 1</span>
+            <h3>Basic Prompt</h3>
+            <p><span class="badge-inline">step-01-basic-prompt/</span></p>
+            <p>Single-shot generation &amp; Zod output with <span class="badge-inline">gemma4:e2b</span>. Exposes static LLM limits.</p>
+          </div>
+
+          <div class="card white border-green">
+            <span class="badge-inline" style="width:fit-content;">STEP 2</span>
+            <h3>Vector RAG</h3>
+            <p><span class="badge-inline">step-02-vector-rag/</span></p>
+            <p>Embeds 21 Lagos Markdown chunks &amp; grounds answers via <span class="badge-inline">ai.retrieve()</span> + <span class="badge-inline">genkit start</span> UI.</p>
+          </div>
+
+          <div class="card white border-yellow">
+            <span class="badge-inline" style="width:fit-content;">STEP 3</span>
+            <h3>Custom Tools</h3>
+            <p><span class="badge-inline">step-03-custom-tools/</span></p>
+            <p>Equips Gemma with live Open-Meteo marine weather &amp; tour safety filter tools.</p>
+          </div>
+
+          <div class="card white border-red">
+            <span class="badge-inline" style="width:fit-content;">STEP 4</span>
+            <h3>Agentic RAG</h3>
+            <p><span class="badge-inline">step-04-agentic-rag/</span></p>
+            <p>Turns vector search into <span class="badge-inline">searchLagosKnowledge</span> tool for autonomous multi-tool planning.</p>
+          </div>
+
+          <div class="card white border-blue">
+            <span class="badge-inline" style="width:fit-content;">STEP 5</span>
+            <h3>Production Agent</h3>
+            <p><span class="badge-inline">step-05-production-agent/</span></p>
+            <p>Multi-turn memory, strict Zod response contract, safety guardrails &amp; interactive CLI.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">⚡ Click any step command to copy &amp; run in your terminal:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn" onclick="copyCmd('npm run step 1')">npm run step 1</button>
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 2')">npm run step 2</button>
+          <button class="cmd-btn yellow" onclick="copyCmd('npm run step 3')">npm run step 3</button>
+          <button class="cmd-btn" onclick="copyCmd('npm run step 4')">npm run step 4</button>
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 5')">npm run step 5</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 4: ARCHITECTURE & GENKIT CONFIG                              -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="Open src/config/genkit.ts briefly. Highlight one crucial detail when using Ollama with Genkit: you MUST pass supports: { tools: true } in the model definition so Genkit enables tool calling for gemma4:e2b.">
+      <div>
+        <div class="eyebrow blue">⚙️ Foundation • src/config/genkit.ts</div>
+        <h2>Configuring Genkit + Local <span style="color: var(--g-blue)">gemma4:e2b</span></h2>
+
+        <div class="grid-2-wide-right">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="card white border-blue">
+              <h3>🔌 Why Genkit + Ollama?</h3>
+              <ul>
+                <li><strong>Unified TypeScript SDK:</strong> Same <span class="badge-inline">ai.defineFlow</span>, <span class="badge-inline">ai.defineTool</span>, and <span class="badge-inline">ai.retrieve</span> APIs for local or cloud models.</li>
+                <li><strong>Critical Flag:</strong> Set <span class="badge-inline">supports: { tools: true }</span> on <span class="badge-inline">gemma4:e2b</span> so Genkit unlocks tool calling!</li>
+                <li><strong>Local Vector Store:</strong> <span class="badge-inline">@genkit-ai/dev-local-vectorstore</span> persists embeddings in <span class="badge-inline">__db_lagos_tourism.json</span>.</li>
+              </ul>
+            </div>
+
+            <div class="arch-diagram">
+              <div class="arch-node blue">
+                <strong>Genkit SDK</strong>
+                <span>Flows • Tools • RAG</span>
+              </div>
+              <div class="arch-arrow">⇄</div>
+              <div class="arch-node green">
+                <strong>Ollama Local</strong>
+                <span>gemma4:e2b</span>
+              </div>
+              <div class="arch-arrow">⇄</div>
+              <div class="arch-node yellow">
+                <strong>Local Vector DB</strong>
+                <span>__db_lagos_tourism.json</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span>src/config/genkit.ts</span>
+            </div>
+            <div class="code-body"><span class="kw">export const</span> GEMMA_MODEL = <span class="str">'gemma4:e2b'</span>;
+
+<span class="kw">export const</span> ai = <span class="fn">genkit</span>({
+  plugins: [
+    <span class="fn">ollama</span>({
+      serverAddress: <span class="str">'http://127.0.0.1:11434'</span>,
+      models: [{
+        name: GEMMA_MODEL,
+        type: <span class="str">'chat'</span>,
+<span class="hl-add">        <span class="cmt">// CRITICAL: Unlock native tool calling for gemma4:e2b</span></span>
+<span class="hl-add">        supports: { tools: <span class="kw">true</span> },</span>
+      }],
+    }),
+    <span class="fn">devLocalVectorstore</span>([{
+      indexName: <span class="str">'lagos_tourism'</span>,
+      embedder: gemmaEmbedder,
+    }]),
+  ],
+});</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🔍 Verify your local Ollama &amp; Genkit setup:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('npm run verify')">📋 npm run verify</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 5: STEP 1 — BASIC PROMPT & STRUCTURED OUTPUT                 -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="DEMO TIME (Step 1): Run 'npm run step 1'. Point out how gemma4:e2b returns valid structured JSON matching BasicPromptOutputSchema, and honestly admits in limitationsNotice that it doesn't know the 30-year lighthouse delay, the DevFest passphrase, or live wave height!">
+      <div>
+        <div class="eyebrow blue">🟦 Step 1 • step-01-basic-prompt/index.ts</div>
+        <h2>Step 1: Static Prompts &amp; Structured Zod Output</h2>
+
+        <div class="grid-2-wide-right">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="card white border-blue">
+              <h3>🎯 What Step 1 Demonstrates</h3>
+              <ul>
+                <li>Wraps <span class="badge-inline">ai.generate()</span> inside an observable <span class="badge-inline">ai.defineFlow()</span>.</li>
+                <li>Uses <span class="badge-inline">output: { schema: BasicPromptOutputSchema }</span> so <span class="badge-inline">gemma4:e2b</span> returns strongly-typed JSON.</li>
+              </ul>
+            </div>
+            <div class="card white border-red">
+              <h3>🛑 The Baseline Failure</h3>
+              <ul>
+                <li>Cannot explain the <strong>1883–1913 Ermida chapel dispute</strong> at Ponta da Piedade.</li>
+                <li>Does not know the secret passphrase (<span class="badge-inline">CARAVELA-GEMMA-2026</span>).</li>
+                <li>Cannot check live Atlantic swell before kayaking.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span>step-01-basic-prompt/index.ts</span>
+            </div>
+            <div class="code-body"><span class="kw">export const</span> step01_basicLagosPrompt = ai.<span class="fn">defineFlow</span>(
+  {
+    name: <span class="str">'step01_basicLagosPrompt'</span>,
+    inputSchema: z.<span class="fn">object</span>({ question: z.<span class="fn">string</span>() }),
+    outputSchema: BasicPromptOutputSchema,
+  },
+  <span class="kw">async</span> (input) =&gt; {
+    <span class="kw">const</span> response = <span class="kw">await</span> ai.<span class="fn">generate</span>({
+      model: gemmaModel, <span class="cmt">// ollama/gemma4:e2b</span>
+      system: <span class="str">'You are Capitão Gil, a Lagos tourism guide...'</span>,
+      prompt: input.question,
+<span class="hl-add">      output: { schema: BasicPromptOutputSchema },</span>
+    });
+    <span class="kw">return</span> response.output!;
+  }
+);</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🚀 Live Demo — Run Step 1 in your terminal:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 1')">📋 npm run step 1</button>
+          <button class="cmd-btn" onclick="copyCmd('npm run step 1 -- &quot;Can I kayak at Ponta da Piedade right now?&quot;')">📋 Custom Prompt</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 6: STEP 2 — LOCAL VECTOR DATABASE & RAG                      -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="DEMO TIME (Step 2 CLI): Open step-02-vector-rag/index.ts and run 'npm run step 2'. Show how we split the 5 Markdown files in data/lagos-knowledge/ into 21 chunks, index them into __db_lagos_tourism.json, and retrieve the top-4 chunks with ai.retrieve(). Now Gemma knows both the 1913 lighthouse delay AND the secret passphrase CARAVELA-GEMMA-2026!">
+      <div>
+        <div class="eyebrow green">🟩 Step 2 • step-02-vector-rag/index.ts</div>
+        <h2>Step 2: Grounding with Local Vector RAG</h2>
+
+        <div class="arch-diagram" style="margin-bottom: 14px;">
+          <div class="arch-node">
+            <strong>5 Markdown Docs</strong>
+            <span>data/lagos-knowledge/*.md</span>
+          </div>
+          <div class="arch-arrow">➔</div>
+          <div class="arch-node yellow">
+            <strong>ai.index()</strong>
+            <span>21 Chunks ➔ __db_lagos_tourism.json</span>
+          </div>
+          <div class="arch-arrow">➔</div>
+          <div class="arch-node green">
+            <strong>ai.retrieve({ k: 4 })</strong>
+            <span>Cosine Similarity Top-K</span>
+          </div>
+          <div class="arch-arrow">➔</div>
+          <div class="arch-node blue">
+            <strong>Grounded gemma4:e2b</strong>
+            <span>Cites Ermida &amp; Passphrase!</span>
+          </div>
+        </div>
+
+        <div class="grid-2-wide-right">
+          <div class="card white border-green">
+            <h3>📚 Hyper-Local Lagos Knowledge Base</h3>
+            <ul>
+              <li><span class="badge-inline">01-ponta-da-piedade-history-grottos.md</span> — 1913 Lighthouse delay, <em>A Catedral</em>, <em>A Cozinha</em>, <em>Submarino</em>.</li>
+              <li><span class="badge-inline">02-kayak-maritime-safety-rules.md</span> — Official wind ($\le 20\text{ km/h}$) &amp; wave ($\le 1.2\text{m}$) limits.</li>
+              <li><span class="badge-inline">05-devfest-lagos-2026-insider-guide.md</span> — Canary passphrase <span class="badge-inline">CARAVELA-GEMMA-2026</span>.</li>
+            </ul>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span>step-02-vector-rag/index.ts</span>
+            </div>
+            <div class="code-body"><span class="cmt">// 1. Retrieve top-K chunks from __db_lagos_tourism.json</span>
+<span class="hl-add"><span class="kw">const</span> docs = <span class="kw">await</span> ai.<span class="fn">retrieve</span>({</span>
+<span class="hl-add">  retriever: lagosRetriever,</span>
+<span class="hl-add">  query: input.question,</span>
+<span class="hl-add">  options: { k: input.topK },</span>
+<span class="hl-add">});</span>
+
+<span class="cmt">// 2. Inject retrieved context into local Gemma 4</span>
+<span class="kw">const</span> response = <span class="kw">await</span> ai.<span class="fn">generate</span>({
+  model: gemmaModel,
+  prompt: <span class="str">`Context:\n${formattedContext}\n\nQuestion: ${input.question}`</span>,
+});</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🚀 Live Demo — Index &amp; Query Local Vector Store:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 2')">📋 npm run step 2</button>
+          <button class="cmd-btn yellow" onclick="copyCmd('npm run step 2 ui')">🧪 npm run step 2 ui (Genkit UI)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 7: STEP 2 GENKIT UI PLAYGROUND (genkit start)                -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="LIVE GENKIT UI CHECKPOINT: Run 'npm run step 2 ui' (which runs genkit start on step-02-vector-rag/genkit-ui.ts). Open http://localhost:4000. Show the audience how they can test the Retriever ('devLocalVectorstore/lagos_tourism') and the Model ('ollama/gemma4:e2b') directly in isolation without running the terminal app!">
+      <div>
+        <div class="eyebrow yellow">🧪 Interactive Checkpoint • step-02-vector-rag/genkit-ui.ts</div>
+        <h2>Test RAG &amp; Model Directly with <span class="badge-inline">genkit start</span></h2>
+        <p class="lead">Don't just test inside the terminal app! Launch the Genkit Developer UI (<span class="badge-inline">http://localhost:4000</span>) scoped to Step 2 to test each primitive directly:</p>
+
+        <div class="grid-3" style="margin-top: 20px;">
+          <div class="card white border-blue">
+            <span class="badge-inline" style="width:fit-content;">1. MODELS TAB</span>
+            <h3>🤖 Test <span class="badge-inline">ollama/gemma4:e2b</span></h3>
+            <p>Select the local model in the UI Playground and prompt it directly <strong>without RAG</strong> to see raw model behavior &amp; token latency.</p>
+          </div>
+
+          <div class="card white border-green">
+            <span class="badge-inline" style="width:fit-content;">2. RETRIEVERS TAB</span>
+            <h3>🧭 Test <span class="badge-inline">lagos_tourism</span></h3>
+            <p>Query the vector store directly without calling the LLM! Type <span class="badge-inline">"1913 lighthouse"</span> or <span class="badge-inline">"DevFest passphrase"</span> and inspect the top-<em>k</em> chunks.</p>
+          </div>
+
+          <div class="card white border-yellow">
+            <span class="badge-inline" style="width:fit-content;">3. FLOWS TAB</span>
+            <h3>🔍 Inspect RAG Traces</h3>
+            <p>Run <span class="badge-inline">step02_ragLagosHistory</span> and click <strong>Inspect Trace</strong> to see exact retriever inputs, document chunks, and prompt injection.</p>
+          </div>
+        </div>
+
+        <div class="code-window" style="margin-top: 12px;">
+          <div class="code-header">
+            <div class="window-dots"><span></span><span></span><span></span></div>
+            <span>Try this input in Retrievers ➔ devLocalVectorstore/lagos_tourism (http://localhost:4000)</span>
+          </div>
+          <div class="code-body">{ <span class="str">"query"</span>: <span class="str">"Why was the 1913 Ponta da Piedade lighthouse delayed and what is the secret passphrase?"</span>, <span class="str">"options"</span>: { <span class="str">"k"</span>: 3 } }</div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🧪 Launch Genkit Developer UI for Step 2:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 2 ui')">📋 npm run step 2 ui</button>
+          <button class="cmd-btn" onclick="copyCmd('npm run rag:ui')">📋 npm run rag:ui</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 8: STEP 3 — EQUIPPING GEMMA WITH CUSTOM TYPESCRIPT TOOLS     -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="DEMO TIME (Step 3): Why isn't Step 2's static RAG enough? Because static RAG still can't check live Atlantic weather! Open step-03-custom-tools/index.ts. Show ai.defineTool() for getLagosWeatherAndMarine and findLagosTours. Run 'npm run step 3 -- calm' then 'npm run step 3 -- nortada_windy' and watch Gemma pivot from kayaking to the cliff boardwalk!">
+      <div>
+        <div class="eyebrow yellow">🟨 Step 3 • step-03-custom-tools/index.ts</div>
+        <h2>Step 3: Giving Gemma Hands with TypeScript Tools</h2>
+
+        <div class="grid-2-wide-right">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card white border-yellow">
+              <h3>🌊 Tool 1: <span class="badge-inline">getLagosWeatherAndMarine</span></h3>
+              <p>Calls live <strong>Open-Meteo Forecast &amp; Marine APIs</strong> for Ponta da Piedade (<span class="badge-inline">37.0805°N, 8.6694°W</span>) + supports workshop scenarios (<span class="badge-inline">live</span>, <span class="badge-inline">calm</span>, <span class="badge-inline">nortada_windy</span>, <span class="badge-inline">atlantic_swell</span>).</p>
+            </div>
+
+            <div class="card white border-green">
+              <h3>🛶 Tool 2: <span class="badge-inline">findLagosTours</span></h3>
+              <p>Filters <span class="badge-inline">data/lagos-tours.json</span> against live wind &amp; wave limits. Automatically closes sea caves when wind &gt; 20 km/h or swell &gt; 1.2 m and suggests land alternatives!</p>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span>step-03-custom-tools/index.ts</span>
+            </div>
+            <div class="code-body"><span class="kw">export const</span> getLagosWeatherAndMarine = ai.<span class="fn">defineTool</span>(
+  {
+    name: <span class="str">'getLagosWeatherAndMarine'</span>,
+    description: <span class="str">'Fetches real-time wind, gusts, and Atlantic wave height at Ponta da Piedade to evaluate kayak safety.'</span>,
+    inputSchema: z.<span class="fn">object</span>({ scenario: WeatherScenarioSchema }),
+    outputSchema: WeatherReportSchema,
+  },
+  <span class="kw">async</span> ({ scenario }) =&gt; <span class="fn">fetchPontaDaPiedadeWeather</span>(scenario)
+);
+
+<span class="cmt">// Pass tools array to local gemma4:e2b:</span>
+<span class="kw">const</span> response = <span class="kw">await</span> ai.<span class="fn">generate</span>({
+  model: gemmaModel,
+<span class="hl-add">  tools: [getLagosWeatherAndMarine, findLagosTours],</span>
+  prompt: input.userRequest,
+});</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🚀 Compare Calm Morning vs. Afternoon Nortada Gales:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 3')">📋 npm run step 3</button>
+          <button class="cmd-btn" onclick="copyCmd('npm run step 3 -- calm')">☀️ npm run step 3 -- calm</button>
+          <button class="cmd-btn yellow" onclick="copyCmd('npm run step 3 -- nortada_windy')">💨 npm run step 3 -- nortada_windy</button>
+          <button class="cmd-btn" onclick="copyCmd('npm run step 3 -- atlantic_swell')">🌊 npm run step 3 -- atlantic_swell</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 9: STATIC RAG VS AGENTIC RAG (CONCEPTUAL SHIFT)              -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="Pause here for 60 seconds to explain the core architectural shift of the workshop: In Step 2 (Static RAG), YOU the developer hardcoded ai.retrieve() before every LLM call. In Step 4 (Agentic RAG), we wrap ai.retrieve() inside a Genkit Tool (searchLagosKnowledge). Now gemma4:e2b decides IF and WHEN to search the vector database!">
+      <div>
+        <div class="eyebrow red">🧠 The Core Architectural Shift</div>
+        <h2>Static RAG (Step 2) vs. Agentic RAG (Step 4)</h2>
+
+        <div class="grid-2" style="margin-top: 14px;">
+          <div class="card white border-yellow">
+            <h3>❌ Static RAG Pipeline (Hardcoded)</h3>
+            <p>Every user message forces a vector search—even if the user just asks <em>"What is the wind speed right now?"</em> or says <em>"Obrigado!"</em></p>
+            <div class="code-window" style="margin-top: 10px;">
+              <div class="code-header"><span>Step 2 Pattern (Fixed Pre-Fetch)</span></div>
+              <div class="code-body"><span class="hl-del"><span class="cmt">// Runs blindly on EVERY turn:</span></span>
+<span class="hl-del"><span class="kw">const</span> docs = <span class="kw">await</span> ai.<span class="fn">retrieve</span>({ retriever: lagosRetriever, query });</span>
+<span class="kw">const</span> res = <span class="kw">await</span> ai.<span class="fn">generate</span>({
+  prompt: <span class="str">`Context: ${docs}\nUser: ${query}`</span>
+});</div>
+            </div>
+          </div>
+
+          <div class="card white border-green">
+            <h3>✅ Agentic RAG Pipeline (Autonomous)</h3>
+            <p>Vector retrieval is a <strong>Tool</strong> (<span class="badge-inline">searchLagosKnowledge</span>). <span class="badge-inline">gemma4:e2b</span> reasons about intent and chains Vector Search + Live APIs on demand!</p>
+            <div class="code-window" style="margin-top: 10px;">
+              <div class="code-header"><span>Step 4 Pattern (Autonomous Tool Selection)</span></div>
+              <div class="code-body"><span class="hl-add"><span class="cmt">// Gemma decides which tools to call &amp; in what order:</span></span>
+<span class="kw">const</span> res = <span class="kw">await</span> ai.<span class="fn">generate</span>({
+  model: gemmaModel,
+<span class="hl-add">  tools: [searchLagosKnowledge, getLagosWeatherAndMarine, findLagosTours],</span>
+  prompt: input.question,
+});</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">💡 Key Insight: The LLM’s description of a tool IS its prompt for when to use it!</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn" onclick="nextSlide()">See Step 4 Code &amp; Demo ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 10: STEP 4 — AUTONOMOUS AGENTIC RAG                          -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="DEMO TIME (Step 4): Open step-04-agentic-rag/index.ts. Show how searchLagosKnowledge wraps ai.retrieve(). Run 'npm run step 4' (and 'npm run step 4 -- nortada_windy'). Watch gemma4:e2b autonomously call searchLagosKnowledge for the 1913 lighthouse history, getLagosWeatherAndMarine for current swell, and findLagosTours for safe tours!">
+      <div>
+        <div class="eyebrow red">🟧 Step 4 • step-04-agentic-rag/index.ts</div>
+        <h2>Step 4: Building the Agentic RAG Pipeline</h2>
+
+        <div class="grid-2-wide-right">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card white border-red">
+              <h3>🧭 Tool 3: <span class="badge-inline">searchLagosKnowledge</span></h3>
+              <p>Wraps <span class="badge-inline">ai.retrieve({ retriever: lagosRetriever })</span> inside <span class="badge-inline">ai.defineTool()</span>.</p>
+              <ul>
+                <li><strong>Autonomous Query Formulation:</strong> Gemma extracts focused search terms (e.g. <span class="badge-inline">"1913 Ponta da Piedade lighthouse A Cozinha"</span>) from long user prompts.</li>
+                <li><strong>Multi-Tool Chaining:</strong> Combines historical RAG chunks with live Open-Meteo marine telemetry in a single turn.</li>
+              </ul>
+            </div>
+
+            <div class="arch-diagram">
+              <div class="arch-node blue">
+                <strong>gemma4:e2b</strong>
+                <span>Agent Planner</span>
+              </div>
+              <div class="arch-arrow">⇄</div>
+              <div class="arch-node green">
+                <strong>Vector DB Tool</strong>
+                <span>searchLagosKnowledge</span>
+              </div>
+              <div class="arch-arrow">+</div>
+              <div class="arch-node yellow">
+                <strong>Live API Tools</strong>
+                <span>Weather + Tours</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span>step-04-agentic-rag/index.ts</span>
+            </div>
+            <div class="code-body"><span class="kw">export const</span> searchLagosKnowledge = ai.<span class="fn">defineTool</span>(
+  {
+    name: <span class="str">'searchLagosKnowledge'</span>,
+    description: <span class="str">'Searches the local Lagos &amp; Ponta da Piedade vector database for history, named sea caves, gastronomy, and DevFest facts.'</span>,
+    inputSchema: z.<span class="fn">object</span>({
+      query: z.<span class="fn">string</span>(),
+      topK: z.<span class="fn">number</span>().<span class="fn">default</span>(3),
+    }),
+  },
+  <span class="kw">async</span> ({ query, topK }) =&gt; {
+<span class="hl-add">    <span class="kw">const</span> docs = <span class="kw">await</span> ai.<span class="fn">retrieve</span>({</span>
+<span class="hl-add">      retriever: lagosRetriever, query, options: { k: topK }</span>
+<span class="hl-add">    });</span>
+    <span class="kw">return</span> { resultsCount: docs.length, chunks: <span class="fn">formatDocs</span>(docs) };
+  }
+);</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🚀 Run Step 4 in Terminal or Test Tools Directly in Genkit UI:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 4')">📋 npm run step 4</button>
+          <button class="cmd-btn yellow" onclick="copyCmd('npm run step 4 -- nortada_windy')">💨 npm run step 4 -- nortada_windy</button>
+          <button class="cmd-btn" onclick="copyCmd('npm run step 4 ui')">🧪 npm run step 4 ui (Genkit UI)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 11: STEP 5 — PRODUCTION-READY LOCAL AGENT                    -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="DEMO TIME (Step 5): What separates a cool demo from a production local agent? 1) Multi-turn session memory, 2) Deterministic safety guardrails so an LLM never overrides an UNSAFE marine sensor verdict, 3) Telemetry (latency + tool count), and 4) Interactive CLI. Run 'npm run step 5' and 'npm run step 5 -- interactive'!">
+      <div>
+        <div class="eyebrow blue">🟪 Step 5 • step-05-production-agent/index.ts</div>
+        <h2>Step 5: Taking Local Agents to Production</h2>
+
+        <div class="grid-2-wide-right">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card white border-blue">
+              <h3>🛡️ 4 Production Upgrades in Step 5</h3>
+              <ul>
+                <li><strong>1. Multi-Turn Session Memory:</strong> Passes conversation <span class="badge-inline">history</span> across turns so follow-up questions retain context.</li>
+                <li><strong>2. Deterministic Safety Guardrail:</strong> Cross-checks LLM output against the live marine sensor verdict (<span class="badge-inline">UNSAFE_CAVES_CLOSED</span> can never be downgraded!).</li>
+                <li><strong>3. Execution Telemetry:</strong> Tracks <span class="badge-inline">latencyMs</span>, <span class="badge-inline">toolCallCount</span>, and exact tool inputs/outputs.</li>
+                <li><strong>4. Resilient Tool Loop:</strong> Supports both native Ollama tool calls &amp; fallback JSON tool invocation.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span>step-05-production-agent/index.ts</span>
+            </div>
+            <div class="code-body"><span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">generateWithToolsAndHistory</span>({
+  systemPrompt: CAPITAO_GIL_PRODUCTION_PROMPT,
+  history: input.history, <span class="cmt">// Multi-turn conversational state</span>
+  userMessage: input.message,
+  tools: [
+    searchLagosKnowledge,
+    getLagosWeatherAndMarine,
+    findLagosTours,
+  ],
+});
+
+<span class="hl-add"><span class="cmt">// Production Telemetry &amp; Updated History</span></span>
+<span class="hl-add"><span class="kw">return</span> {</span>
+<span class="hl-add">  answer: res.text,</span>
+<span class="hl-add">  updatedHistory: res.updatedHistory,</span>
+<span class="hl-add">  telemetry: { latencyMs, toolCallCount, model: GEMMA_MODEL },</span>
+<span class="hl-add">};</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🚀 Run Automated 2-Turn Demo or Interactive Concierge Chat:</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 5')">📋 npm run step 5</button>
+          <button class="cmd-btn yellow" onclick="copyCmd('npm run step 5 -- interactive')">💬 npm run step 5 -- interactive</button>
+          <button class="cmd-btn" onclick="copyCmd('npm run ui')">🖥️ npm run ui (Full Genkit UI)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- SLIDE 12: WRAP-UP, CHEAT SHEET & Q&A                               -->
+    <!-- ================================================================== -->
+    <section class="slide" data-notes="Wrap up the workshop! Recap the 5 steps from static prompt to production Agentic RAG with gemma4:e2b and Genkit. Invite questions and encourage everyone to experiment with 'npm run step 2 ui', 'npm run step 4 ui', and 'npm run step 5 -- interactive'. Muito obrigado, DevFest Lagos!">
+      <div>
+        <div class="eyebrow green">🎉 Workshop Recap &amp; Cheat Sheet</div>
+        <h2>Muito Obrigado, DevFest Lagos 2026! 🇵🇹⛵</h2>
+        <p class="lead">You just built a 100% local, privacy-preserving <strong>Agentic RAG</strong> tourism concierge powered by <strong>Gemma 4 (<span class="badge-inline">gemma4:e2b</span>)</strong> and <strong>Google Genkit</strong>.</p>
+
+        <div class="grid-2" style="margin-top: 18px;">
+          <div class="card white border-blue">
+            <h3>⌨️ All 5 Workshop Commands</h3>
+            <ul>
+              <li><span class="badge-inline">npm run step 1</span> — Static Prompt &amp; Zod Output Baseline</li>
+              <li><span class="badge-inline">npm run step 2</span> — Local Vector Store &amp; Grounded RAG</li>
+              <li><span class="badge-inline">npm run step 3</span> — Live Open-Meteo Weather &amp; Tour Tools</li>
+              <li><span class="badge-inline">npm run step 4</span> — Autonomous Agentic RAG Pipeline</li>
+              <li><span class="badge-inline">npm run step 5</span> — Production Multi-Turn Agent &amp; CLI</li>
+            </ul>
+          </div>
+
+          <div class="card white border-green">
+            <h3>🧪 Genkit Developer UI Playgrounds</h3>
+            <ul>
+              <li><span class="badge-inline">npm run step 2 ui</span> — Test Vector Retriever &amp; <span class="badge-inline">gemma4:e2b</span> directly in UI</li>
+              <li><span class="badge-inline">npm run step 4 ui</span> — Test <span class="badge-inline">searchLagosKnowledge</span> tool &amp; Agentic RAG in UI</li>
+              <li><span class="badge-inline">npm run step 5 -- interactive</span> — Live terminal chat with <em>Capitão Gil</em></li>
+              <li><span class="badge-inline">npm run ui</span> — Open full workshop workspace at <span class="badge-inline">http://localhost:4000</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="cmd-bar">
+        <div class="cmd-bar-label">🎤 Questions &amp; Live Experiments • <strong style="color:#fff;">Nuno Andrade</strong> (DevFest Lagos 2026)</div>
+        <div class="cmd-buttons">
+          <button class="cmd-btn green" onclick="copyCmd('npm run step 2 ui')">🧪 npm run step 2 ui</button>
+          <button class="cmd-btn yellow" onclick="copyCmd('npm run step 5 -- interactive')">💬 npm run step 5 -- interactive</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Speaker Notes Drawer (Toggle with 'S' key or button) -->
+  <aside id="speakerNotesDrawer" class="speaker-notes-drawer">
+    <div class="speaker-notes-header">
+      <span>🎙️ Speaker Notes — Nuno Andrade (Press 'S' to toggle)</span>
+      <span id="notesSlideLabel">Slide 1 / 14</span>
+    </div>
+    <div id="speakerNotesContent" class="speaker-notes-content"></div>
+  </aside>
+
+  <!-- Footer Navigation Bar -->
+  <footer class="deck-footer">
+    <div class="progress-Wrap">
+      <span id="slideCounter" class="slide-counter">1 / 14</span>
+      <div class="progress-bar-bg">
+        <div id="progressBarFill" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <div style="font-size: 0.8rem; color: var(--text-secondary);">
+      Use <kbd class="badge-inline">←</kbd> <kbd class="badge-inline">→</kbd> or <kbd class="badge-inline">Space</kbd> to navigate • <kbd class="badge-inline">S</kbd> Speaker Notes • <kbd class="badge-inline">F</kbd> Fullscreen
+    </div>
+
+    <div class="nav-controls">
+      <button id="btnNotes" class="nav-btn" onclick="toggleNotes()">🎙️ Notes (S)</button>
+      <button class="nav-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+      <button class="nav-btn" onclick="prevSlide()">← Prev</button>
+      <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+  </footer>
+
+  <script>
+    const PONTA_DA_PIEDADE_WATERMARK_SVG = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" preserveAspectRatio="xMaxYMax slice" fill="none">
+        <defs>
+          <linearGradient id="cliffGold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FBBC04" stop-opacity="0.18" />
+            <stop offset="55%" stop-color="#EA4335" stop-opacity="0.11" />
+            <stop offset="100%" stop-color="#B06000" stop-opacity="0.16" />
+          </linearGradient>
+          <linearGradient id="seaTeal" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#4285F4" stop-opacity="0.15" />
+            <stop offset="50%" stop-color="#34A853" stop-opacity="0.13" />
+            <stop offset="100%" stop-color="#4285F4" stop-opacity="0.16" />
+          </linearGradient>
+          <radialGradient id="lighthouseBeam" cx="0.72" cy="0.22" r="0.45">
+            <stop offset="0%" stop-color="#FBBC04" stop-opacity="0.22" />
+            <stop offset="100%" stop-color="#FBBC04" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <circle cx="865" cy="135" r="220" fill="url(#lighthouseBeam)" />
+        <path d="M865 135 L480 40 L520 210 Z" fill="url(#lighthouseBeam)" />
+        <path d="M865 135 L1190 55 L1190 215 Z" fill="url(#lighthouseBeam)" />
+        <path d="M620 120 Q632 108 644 120 Q656 108 668 120" stroke="#4285F4" stroke-opacity="0.24" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M685 95 Q694 86 703 95 Q712 86 721 95" stroke="#4285F4" stroke-opacity="0.20" stroke-width="2" stroke-linecap="round"/>
+        <path d="M565 148 Q573 140 581 148 Q589 140 597 148" stroke="#4285F4" stroke-opacity="0.20" stroke-width="2" stroke-linecap="round"/>
+        <g stroke="#B06000" stroke-opacity="0.26" stroke-width="2.2">
+          <rect x="838" y="172" width="54" height="28" rx="2" fill="#FBBC04" fill-opacity="0.12" />
+          <path d="M852 172 L856 126 L874 126 L878 172 Z" fill="#FBBC04" fill-opacity="0.16" />
+          <rect x="854" y="118" width="22" height="8" rx="1" fill="#EA4335" fill-opacity="0.20" />
+          <path d="M854 118 Q865 103 876 118 Z" fill="#EA4335" fill-opacity="0.26" />
+          <line x1="865" y1="102" x2="865" y2="110" />
+        </g>
+        <path d="M 1200 490 L 1200 220 C 1150 215, 1110 205, 1065 198 C 1015 190, 960 195, 915 198 L 820 198 C 790 200, 770 218, 752 248 L 725 305 C 708 338, 690 365, 675 490 L 715 490 C 720 410, 745 365, 785 365 C 825 365, 845 410, 850 490 L 925 490 C 930 390, 965 340, 1015 340 C 1065 340, 1095 390, 1100 490 Z"
+              fill="url(#cliffGold)" stroke="#B06000" stroke-opacity="0.24" stroke-width="2.5" />
+        <path d="M775 235 C855 228, 985 232, 1180 242" stroke="#B06000" stroke-opacity="0.18" stroke-width="1.8" stroke-dasharray="14 6"/>
+        <path d="M748 278 C845 270, 995 275, 1190 285" stroke="#B06000" stroke-opacity="0.18" stroke-width="1.8" />
+        <path d="M728 320 C835 314, 965 318, 1185 326" stroke="#B06000" stroke-opacity="0.16" stroke-width="1.6" stroke-dasharray="20 8"/>
+        <path d="M 475 490 L 490 310 C 496 278, 520 262, 558 260 C 596 258, 625 275, 635 308 L 652 490 L 605 490 C 600 418, 582 385, 560 385 C 538 385, 522 418, 518 490 Z"
+              fill="url(#cliffGold)" stroke="#B06000" stroke-opacity="0.24" stroke-width="2.2" />
+        <path d="M500 302 C535 296, 585 298, 628 304" stroke="#B06000" stroke-opacity="0.16" stroke-width="1.6" />
+        <path d="M492 342 C535 336, 590 338, 636 344" stroke="#B06000" stroke-opacity="0.16" stroke-width="1.6" stroke-dasharray="10 5" />
+        <path d="M 335 490 L 348 372 C 355 348, 375 338, 398 342 C 418 345, 432 365, 438 395 L 448 490 Z"
+              fill="url(#cliffGold)" stroke="#B06000" stroke-opacity="0.22" stroke-width="2" />
+        <path d="M 235 490 L 245 418 C 252 400, 272 396, 285 412 L 298 490 Z"
+              fill="url(#cliffGold)" stroke="#B06000" stroke-opacity="0.18" stroke-width="1.8" />
+        <g opacity="0.28" stroke="#1967D2" stroke-width="2" fill="none">
+          <path d="M 640 502 Q 675 494 710 502 Q 675 510 640 502 Z" fill="#4285F4" fill-opacity="0.25" />
+          <circle cx="675" cy="488" r="4.5" fill="#1967D2" />
+          <path d="M 668 499 L 682 499" stroke-width="3" />
+          <line x1="656" y1="482" x2="694" y2="508" stroke="#EA4335" stroke-width="2.2" />
+        </g>
+        <path d="M 80 492 Q 145 478, 210 492 T 340 492 T 470 492 T 600 492 T 730 492 T 860 492 T 990 492 T 1120 492 T 1200 492 L 1200 560 L 80 560 Z"
+              fill="url(#seaTeal)" />
+        <path d="M 140 515 Q 205 502, 270 515 T 400 515 T 530 515 T 660 515 T 790 515 T 920 515 T 1050 515 T 1180 515"
+              stroke="#4285F4" stroke-opacity="0.26" stroke-width="2.4" stroke-linecap="round" fill="none" />
+        <path d="M 220 538 Q 285 526, 350 538 T 480 538 T 610 538 T 740 538 T 870 538 T 1000 538 T 1130 538"
+              stroke="#34A853" stroke-opacity="0.22" stroke-width="2" stroke-linecap="round" fill="none" />
+      </svg>
+      <div class="lagos-watermark-caption">🌊 Ponta da Piedade Sea Caves &amp; 1913 Farol • Lagos, Portugal (37.0805°N, 8.6694°W)</div>
+    `;
+
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    slides.forEach((slideEl) => {
+      const wm = document.createElement('div');
+      wm.className = 'lagos-caves-watermark';
+      wm.setAttribute('aria-hidden', 'true');
+      wm.innerHTML = PONTA_DA_PIEDADE_WATERMARK_SVG;
+      slideEl.prepend(wm);
+    });
+    const totalSlides = slides.length;
+    let currentIndex = 0;
+    let notesOpen = false;
+
+    const counterEl = document.getElementById('slideCounter');
+    const progressEl = document.getElementById('progressBarFill');
+    const drawerEl = document.getElementById('speakerNotesDrawer');
+    const notesContentEl = document.getElementById('speakerNotesContent');
+    const notesLabelEl = document.getElementById('notesSlideLabel');
+    const btnNotesEl = document.getElementById('btnNotes');
+    const toastEl = document.getElementById('copyToast');
+
+    function updateSlideView() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentIndex);
+      });
+      const slideNum = currentIndex + 1;
+      counterEl.textContent = `${slideNum} / ${totalSlides}`;
+      progressEl.style.width = `${(slideNum / totalSlides) * 100}%`;
+
+      const activeSlide = slides[currentIndex];
+      const noteText = activeSlide.getAttribute('data-notes') || 'No speaker notes for this slide.';
+      notesContentEl.textContent = noteText;
+      notesLabelEl.textContent = `Slide ${slideNum} / ${totalSlides}`;
+      window.location.hash = `slide-${slideNum}`;
+    }
+
+    function nextSlide() {
+      if (currentIndex < totalSlides - 1) {
+        currentIndex++;
+        updateSlideView();
+      }
+    }
+
+    function prevSlide() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateSlideView();
+      }
+    }
+
+    function toggleNotes() {
+      notesOpen = !notesOpen;
+      drawerEl.classList.toggle('open', notesOpen);
+      btnNotesEl.classList.toggle('active', notesOpen);
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function copyCmd(cmdText) {
+      navigator.clipboard.writeText(cmdText).then(() => {
+        toastEl.textContent = `✅ Copied: ${cmdText}`;
+        toastEl.classList.add('show');
+        setTimeout(() => toastEl.classList.remove('show'), 2200);
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        currentIndex = 0;
+        updateSlideView();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        currentIndex = totalSlides - 1;
+        updateSlideView();
+      } else if (e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        toggleNotes();
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    });
+
+    // Restore slide from URL hash if present
+    const hashMatch = window.location.hash.match(/slide-(\d+)/);
+    if (hashMatch) {
+      const parsed = parseInt(hashMatch[1], 10) - 1;
+      if (parsed >= 0 && parsed < totalSlides) {
+        currentIndex = parsed;
+      }
+    }
+    updateSlideView();
+  </script>
+</body>
+</html>

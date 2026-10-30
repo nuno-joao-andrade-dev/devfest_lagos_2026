@@ -1,0 +1,53 @@
+# Optional Ollama Modelfile that ensures native tool-calling template support on Gemma 4 E2B
+# Usage (only needed if a custom Ollama build reports that gemma4:e2b does not support tools):
+#   ollama create gemma4-lagos -f Modelfile.gemma4-tools
+#   Then set GEMMA_MODEL=gemma4-lagos in your .env file.
+
+FROM gemma4:e2b
+
+PARAMETER temperature 0.2
+PARAMETER num_ctx 8192
+
+TEMPLATE """{{- if .Messages }}
+{{- if or .System .Tools }}<start_of_turn>user
+{{- if .System }}
+{{ .System }}
+{{- end }}
+{{- if .Tools }}
+
+You have access to the following tools. To invoke a tool, respond with a JSON tool call matching its parameters:
+{{- range .Tools }}
+- {{ .Function.Name }}: {{ .Function.Description }}
+  Parameters: {{ .Function.Parameters }}
+{{- end }}
+{{- end }}<end_of_turn>
+{{- end }}
+{{- range $i, $_ := .Messages }}
+{{- $last := eq (len (slice $.Messages $i)) 1 }}
+{{- if eq .Role "user" }}<start_of_turn>user
+{{ .Content }}<end_of_turn>
+{{ if $last }}<start_of_turn>model
+{{ end }}
+{{- else if eq .Role "assistant" }}<start_of_turn>model
+{{- if .ToolCalls }}
+{{- range .ToolCalls }}
+{"name": "{{ .Function.Name }}", "arguments": {{ .Function.Arguments }}}
+{{- end }}
+{{- else }}
+{{ .Content }}
+{{- end }}{{ if not $last }}<end_of_turn>
+{{ end }}
+{{- else if eq .Role "tool" }}<start_of_turn>user
+Tool output: {{ .Content }}<end_of_turn>
+{{ if $last }}<start_of_turn>model
+{{ end }}
+{{- end }}
+{{- end }}
+{{- else }}
+{{- if .System }}<start_of_turn>user
+{{ .System }}<end_of_turn>
+{{ end }}{{ if .Prompt }}<start_of_turn>user
+{{ .Prompt }}<end_of_turn>
+{{ end }}<start_of_turn>model
+{{ .Response }}{{ if .Response }}<end_of_turn>{{ end }}
+{{- end }}"""
